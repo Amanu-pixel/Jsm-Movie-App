@@ -17,8 +17,12 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchMovies = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+
     try {
       const endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
 
@@ -33,10 +37,11 @@ const App = () => {
       console.log(data);
 
       setMovies(data.results);
-      setErrorMessage("");
     } catch (error) {
       console.error(error);
       setErrorMessage("Error fetching movies. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,19 +68,21 @@ const App = () => {
           />
         </header>
 
-        {errorMessage && <p>{errorMessage}</p>}
-
         <section>
           <h2>Popular Movies</h2>
 
-          {movies.length > 0 ? (
+          {isLoading ? (
+            <p className="text-white">Loading...</p>
+          ) : errorMessage ? (
+            <p className="text-red-500">{errorMessage}</p>
+          ) : (
             <ul>
               {movies.map((movie) => (
-                <li key={movie.id}>{movie.title}</li>
+                <li key={movie.id}>
+                  {movie.title}
+                </li>
               ))}
             </ul>
-          ) : (
-            !errorMessage && <p>Loading movies...</p>
           )}
         </section>
       </div>
